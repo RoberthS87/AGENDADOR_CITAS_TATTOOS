@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0a0c" />
+  <title>Aeternum Tattoo | Agendador y Control de Citas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0a0c;
+      --bg-card: #131317;
+      --bg-card-hover: #1b1b21;
+      --bg-input: #0f0f13;
+      --gold: #d4af37;
+      --gold-light: #f3d46b;
+      --gold-dim: rgba(212, 175, 55, 0.16);
+      --emerald: #25D366;
+      --emerald-dark: #1da851;
+      --danger: #ef4444;
+      --danger-dim: rgba(239, 68, 68, 0.14);
+      --warn: #f59e0b;
+      --text-main: #f4f4f6;
+      --text-muted: #9ca3af;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-gold: rgba(212, 175, 55, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.5;
+      background-image:
+        radial-gradient(circle at 15% 10%, rgba(212, 175, 55, 0.07), transparent 35%),
+        radial-gradient(circle at 85% 90%, rgba(37, 211, 102, 0.05), transparent 35%);
+    }
+
+    body {
+      padding-bottom: calc(96px + env(safe-area-inset-bottom));
+    }
+
+    /* Top Header */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(10, 10, 12, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: calc(10px + env(safe-area-inset-top)) 14px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1d1a11, #0f0f13);
+      border: 1px solid var(--border-gold);
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      box-shadow: 0 0 18px rgba(212, 175, 55, 0.15);
+    }
+
+    .brand-text h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      color: var(--gold-light);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-text p {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      font-size: 1.15rem;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.94);
+    }
+
+    /* Navigation Tabs */
+    .tabs-bar {
+      max-width: 680px;
+      margin: 14px auto 0;
+      padding: 0 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .tab-btn {
+      min-height: 46px;
+      border-radius: 13px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.86rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(145deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.07));
+      border-color: var(--gold);
+      color: var(--gold-light);
+    }
+
+    .badge-count {
+      background: var(--gold);
+      color: #111;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
+    }
+
+    /* Container */
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 14px 14px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .view-section {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .view-section.active {
+      display: flex;
+    }
+
+    /* Hero Banner */
+    .hero-card {
+      background: linear-gradient(145deg, #161512, #111115);
+      border: 1px solid var(--border-gold);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--gold-dim);
+      color: var(--gold-light);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .hero-card h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.24rem;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+
+    .hero-card p {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+
+    .deposit-pill {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(212, 175, 55, 0.08);
+      border: 1px dashed rgba(212, 175, 55, 0.45);
+      font-size: 0.81rem;
+      color: var(--gold-light);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Section Card */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--gold-dim);
+      border: 1px solid var(--border-gold);
+      color: var(--gold-light);
+      font-weight: 700;
+      font-size: 0.82rem;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .step-header h3 {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* Inputs */
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #d1d5db;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    input[type="tel"],
+    input[type="search"],
+    textarea {
+      width: 100%;
+      min-height: 48px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      color-scheme: dark;
+    }
+
+    textarea {
+      min-height: 82px;
+      resize: vertical;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.14);
+    }
+
+    /* Fixed +593 Phone Input */
+    .phone-wrap {
+      display: flex;
+      align-items: stretch;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .phone-wrap:focus-within {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.14);
+    }
+
+    .phone-prefix {
+      padding: 0 13px;
+      background: rgba(212, 175, 55, 0.1);
+      border-right: 1px solid var(--border);
+      color: var(--gold-light);
+      font-weight: 700;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .phone-wrap input {
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 440px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Option Cards */
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+    }
+
+    .option-card {
+      min-height: 52px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 11px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.16s ease;
+      text-align: left;
+      color: var(--text-main);
+      font-family: inherit;
+    }
+
+    .option-card:active {
+      transform: scale(0.97);
+    }
+
+    .option-card .opt-emoji {
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .option-card .opt-info {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .option-card .opt-title {
+      font-size: 0.83rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .option-card .opt-sub {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .option-card.active {
+      background: linear-gradient(145deg, rgba(212, 175, 55, 0.18), rgba(212, 175, 55, 0.06));
+      border-color: var(--gold);
+      box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.35);
+    }
+
+    .option-card.active .opt-title {
+      color: var(--gold-light);
+    }
+
+    /* Chips */
+    .chips-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      min-height: 44px;
+      padding: 9px 12px;
+      border-radius: 11px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.16s ease;
+    }
+
+    .chip.active {
+      background: var(--gold-dim);
+      border-color: var(--gold);
+      color: var(--gold-light);
+    }
+
+    /* Live Summary Box */
+    .summary-box {
+      background: #0d0d10;
+      border: 1px solid var(--border-gold);
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 0.84rem;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding-bottom: 6px;
+    }
+
+    .summary-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .summary-label {
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .summary-val {
+      font-weight: 600;
+      text-align: right;
+      color: #fff;
+      word-break: break-word;
+    }
+
+    .summary-val.gold {
+      color: var(--gold-light);
+    }
+
+    /* Saved Appointments List */
+    .filter-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .filter-pill {
+      min-height: 38px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .filter-pill.active {
+      background: var(--gold-dim);
+      border-color: var(--gold);
+      color: var(--gold-light);
+    }
+
+    .appt-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .appt-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .appt-card.status-missed {
+      border-color: rgba(239, 68, 68, 0.45);
+      background: linear-gradient(145deg, #171214, #131317);
+    }
+
+    .appt-card.status-done {
+      border-color: rgba(37, 211, 102, 0.4);
+    }
+
+    .appt-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .appt-name {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .appt-phone {
+      font-size: 0.78rem;
+      color: var(--gold-light);
+      margin-top: 2px;
+    }
+
+    .status-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .status-tag.pending {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .status-tag.done {
+      background: rgba(37, 211, 102, 0.14);
+      color: #4ade80;
+      border: 1px solid rgba(37, 211, 102, 0.35);
+    }
+
+    .status-tag.missed {
+      background: var(--danger-dim);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .appt-meta {
+      font-size: 0.81rem;
+      color: #d1d5db;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      background: var(--bg-input);
+      padding: 10px 12px;
+      border-radius: 11px;
+    }
+
+    .appt-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn-mini {
+      min-height: 42px;
+      padding: 8px 10px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: transform 0.14s ease;
+    }
+
+    .btn-mini:active {
+      transform: scale(0.97);
+    }
+
+    .btn-mini.attend {
+      border-color: rgba(37, 211, 102, 0.4);
+      color: #4ade80;
+    }
+
+    .btn-mini.missed {
+      border-color: rgba(239, 68, 68, 0.45);
+      color: #f87171;
+    }
+
+    .btn-mini.wa-direct {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+      border: none;
+      color: #051b0d;
+      font-size: 0.83rem;
+      font-weight: 800;
+    }
+
+    .btn-mini.wa-missed-msg {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      border: none;
+      color: #fff;
+      font-size: 0.83rem;
+      font-weight: 800;
+    }
+
+    .appt-footer-row {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .btn-del-text {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      cursor: pointer;
+      padding: 4px 6px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 36px 16px;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      font-size: 0.88rem;
+    }
+
+    /* Sticky Bottom Action Bar */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 45;
+      background: rgba(10, 10, 12, 0.94);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border);
+      padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+    }
+
+    .bottom-bar.hidden {
+      display: none;
+    }
+
+    .bottom-inner {
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-clear {
+      min-height: 52px;
+      padding: 0 14px;
+      border-radius: 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .btn-whatsapp {
+      flex: 1;
+      min-height: 52px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+      color: #051b0d;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 6px 22px rgba(37, 211, 102, 0.28);
+      transition: transform 0.15s ease;
+    }
+
+    .btn-whatsapp:active {
+      transform: scale(0.98);
+    }
+
+    /* Modal Settings */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 420px;
+      background: #15151a;
+      border: 1px solid var(--border-gold);
+      border-radius: 18px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .modal-card h3 {
+      font-family: 'Cinzel', serif;
+      color: var(--gold-light);
+      font-size: 1.05rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 4px;
+    }
+
+    .btn-save {
+      min-height: 44px;
+      padding: 0 18px;
+      border-radius: 11px;
+      border: none;
+      background: var(--gold);
+      color: #111;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: calc(70px + env(safe-area-inset-top));
+      left: 50%;
+      transform: translateX(-50%) translateY(-16px);
+      background: #1a1d1a;
+      border: 1px solid var(--emerald);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 70;
+      white-space: nowrap;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.45);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-logo" aria-hidden="true">&#128420;</div>
+      <div class="brand-text">
+        <h1>AETERNUM TATTOO</h1>
+        <p>Agendador &amp; Control de Citas</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button type="button" class="icon-btn" id="soundToggle" title="Activar/Silenciar sonidos">&#128266;</button>
+      <button type="button" class="icon-btn" id="openSettings" title="Configurar WhatsApp del Estudio">&#9881;&#65039;</button>
+    </div>
+  </header>
+
+  <!-- Main Tabs -->
+  <nav class="tabs-bar">
+    <button type="button" class="tab-btn active" data-tab="newView">
+      <span>&#10133; Nueva Cita</span>
+    </button>
+    <button type="button" class="tab-btn" data-tab="listView">
+      <span>&#128203; Citas Guardadas</span>
+      <span class="badge-count" id="savedBadge">0</span>
+    </button>
+  </nav>
+
+  <div id="toast" class="toast"></div>
+
+  <main class="container">
+    <!-- TAB 1: NEW APPOINTMENT -->
+    <div id="newView" class="view-section active">
+      <section class="hero-card">
+        <div class="hero-badge">&#10024; Env&iacute;a directo al cliente y guarda en agenda</div>
+        <h2>Agenda y confirma al cliente</h2>
+        <p>Al presionar enviar, la cita se guarda en tu lista y se abre el WhatsApp directo del cliente con su confirmaci&oacute;n.</p>
+        <div class="deposit-pill">
+          <span>&#128181;</span>
+          <span><strong>Costo de agendamiento: $5.00 USD</strong> (abonable al valor final; no reembolsable por inasistencia).</span>
+        </div>
+      </section>
+
+      <!-- Step 1: Client Info -->
+      <section class="card">
+        <div class="step-header">
+          <span class="step-num">1</span>
+          <h3>Datos del Cliente</h3>
+        </div>
+
+        <div class="field-group">
+          <label for="clientName">&#128100; Nombre y Apellido *</label>
+          <input type="text" id="clientName" placeholder="Ej: Roberto S&aacute;nchez" autocomplete="name" />
+        </div>
+
+        <div class="field-group">
+          <label for="clientPhone">&#128241; Celular WhatsApp del Cliente *</label>
+          <div class="phone-wrap">
+            <span class="phone-prefix">&#127466;&#127464; +593</span>
+            <input type="tel" id="clientPhone" inputmode="numeric" maxlength="10" placeholder="99 123 4567" />
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>&#127912; Experiencia</label>
+          <div class="options-grid" id="expGroup">
+            <button type="button" class="option-card active" data-value="Ya tengo tatuajes">
+              <span class="opt-emoji">&#128170;</span>
+              <span class="opt-info">
+                <span class="opt-title">Ya tengo tatuajes</span>
+                <span class="opt-sub">Conoce el proceso</span>
+              </span>
+            </button>
+            <button type="button" class="option-card" data-value="Es mi primer tatuaje">
+              <span class="opt-emoji">&#10024;</span>
+              <span class="opt-info">
+                <span class="opt-title">Primer tatuaje</span>
+                <span class="opt-sub">Primera experiencia</span>
+              </span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 2: Style -->
+      <section class="card">
+        <div class="step-header">
+          <span class="step-num">2</span>
+          <h3>Estilo de Tatuaje</h3>
+        </div>
+
+        <div class="options-grid" id="styleGroup">
+          <button type="button" class="option-card active" data-value="Blackwork / Sombras">
+            <span class="opt-emoji">&#128420;</span>
+            <span class="opt-info">
+              <span class="opt-title">Blackwork</span>
+              <span class="opt-sub">Tinta negra y contraste</span>
+            </span>
+          </button>
+          <button type="button" class="option-card" data-value="Fine Line / Minimalista">
+            <span class="opt-emoji">&#10002;&#65039;</span>
+            <span class="opt-info">
+              <span class="opt-title">Fine Line</span>
+              <span class="opt-sub">L&iacute;nea fina y sutil</span>
+            </span>
+          </button>
+          <button type="button" class="option-card" data-value="Realismo">
+            <span class="opt-emoji">&#128065;&#65039;</span>
+            <span class="opt-info">
+              <span class="opt-title">Realismo</span>
+              <span class="opt-sub">Retratos y detalle</span>
+            </span>
+          </button>
+          <button type="button" class="option-card" data-value="Lettering / Caligraf&iacute;a">
+            <span class="opt-emoji">&#128220;</span>
+            <span class="opt-info">
+              <span class="opt-title">Lettering</span>
+              <span class="opt-sub">Frases y nombres</span>
+            </span>
+          </button>
+          <button type="button" class="option-card" data-value="Tradicional / Old School">
+            <span class="opt-emoji">&#9875;</span>
+            <span class="opt-info">
+              <span class="opt-title">Tradicional</span>
+              <span class="opt-sub">L&iacute;neas s&oacute;lidas</span>
+            </span>
+          </button>
+          <button type="button" class="option-card" data-value="Cover Up / Arreglo">
+            <span class="opt-emoji">&#128260;</span>
+            <span class="opt-info">
+              <span class="opt-title">Cover Up</span>
+              <span class="opt-sub">Tapar o restaurar</span>
+            </span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Step 3: Size & Zone -->
+      <section class="card">
+        <div class="step-header">
+          <span class="step-num">3</span>
+          <h3>Tama&ntilde;o y Zona del Cuerpo</h3>
+        </div>
+
+        <div class="field-group">
+          <label>&#128207; Tama&ntilde;o aproximado</label>
+          <div class="options-grid" id="sizeGroup">
+            <button type="button" class="option-card" data-value="Mini (hasta 5 cm)">
+              <span class="opt-emoji">&#128313;</span>
+              <span class="opt-info">
+                <span class="opt-title">Mini</span>
+                <span class="opt-sub">Hasta 5 cm</span>
+              </span>
+            </button>
+            <button type="button" class="option-card active" data-value="Peque&ntilde;o (5 - 10 cm)">
+              <span class="opt-emoji">&#128312;</span>
+              <span class="opt-info">
+                <span class="opt-title">Peque&ntilde;o</span>
+                <span class="opt-sub">5 - 10 cm</span>
+              </span>
+            </button>
+            <button type="button" class="option-card" data-value="Mediano (11 - 20 cm)">
+              <span class="opt-emoji">&#128293;</span>
+              <span class="opt-info">
+                <span class="opt-title">Mediano</span>
+                <span class="opt-sub">11 - 20 cm</span>
+              </span>
+            </button>
+            <button type="button" class="option-card" data-value="Grande (+20 cm / Sesi&oacute;n)">
+              <span class="opt-emoji">&#128081;</span>
+              <span class="opt-info">
+                <span class="opt-title">Grande</span>
+                <span class="opt-sub">+20 cm / Sesi&oacute;n</span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>&#129516; Zona del cuerpo</label>
+          <div class="chips-row" id="zoneGroup">
+            <button type="button" class="chip active" data-value="Brazo / Antebrazo">&#128170; Brazo / Antebrazo</button>
+            <button type="button" class="chip" data-value="Mu&ntilde;eca / Mano">&#9995; Mu&ntilde;eca / Mano</button>
+            <button type="button" class="chip" data-value="Hombro / Espalda">&#129460; Hombro / Espalda</button>
+            <button type="button" class="chip" data-value="Pecho / Costillas">&#129728; Pecho / Costillas</button>
+            <button type="button" class="chip" data-value="Pierna / Pantorrilla">&#129461; Pierna / Pantorrilla</button>
+            <button type="button" class="chip" data-value="Cuello / Otra zona">&#128205; Cuello / Otra</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 4: Date, Time & Idea -->
+      <section class="card">
+        <div class="step-header">
+          <span class="step-num">4</span>
+          <h3>Fecha, Horario e Idea</h3>
+        </div>
+
+        <div class="grid-2">
+          <div class="field-group">
+            <label for="dateInput">&#128197; Fecha deseada *</label>
+            <input type="date" id="dateInput" />
+          </div>
+          <div class="field-group">
+            <label for="timeInput">&#9200; Hora exacta</label>
+            <input type="time" id="timeInput" value="11:30" />
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>&#127780;&#65039; Franja preferida</label>
+          <div class="chips-row" id="shiftGroup">
+            <button type="button" class="chip active" data-value="Ma&ntilde;ana (10:00 - 13:00)">&#9728;&#65039; Ma&ntilde;ana (10:00 - 13:00)</button>
+            <button type="button" class="chip" data-value="Tarde (14:00 - 18:00)">&#127751; Tarde (14:00 - 18:00)</button>
+            <button type="button" class="chip" data-value="Noche (18:00 - 20:30)">&#127769; Noche (18:00 - 20:30)</button>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="ideaInput">&#128172; Idea o detalles</label>
+          <textarea id="ideaInput" placeholder="Ej: Frase con los nombres de mis hijos en el antebrazo..."></textarea>
+        </div>
+      </section>
+
+      <!-- Live Summary -->
+      <section class="card">
+        <div class="step-header">
+          <span class="step-num">&#10003;</span>
+          <h3>Resumen de la Solicitud</h3>
+        </div>
+
+        <div class="summary-box">
+          <div class="summary-row">
+            <span class="summary-label">Cliente:</span>
+            <span class="summary-val" id="sumName">Sin especificar</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">WhatsApp:</span>
+            <span class="summary-val" id="sumPhone">Sin especificar</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Experiencia:</span>
+            <span class="summary-val" id="sumExp">Ya tengo tatuajes</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Estilo:</span>
+            <span class="summary-val" id="sumStyle">Blackwork / Sombras</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Tama&ntilde;o y Zona:</span>
+            <span class="summary-val" id="sumSizeZone">Peque&ntilde;o (5 - 10 cm) &bull; Brazo / Antebrazo</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Fecha y Hora:</span>
+            <span class="summary-val" id="sumDateTime">Por definir</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Franja:</span>
+            <span class="summary-val" id="sumShift">Ma&ntilde;ana (10:00 - 13:00)</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Idea:</span>
+            <span class="summary-val" id="sumIdea">Por definir en consulta</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Agendamiento:</span>
+            <span class="summary-val gold">$5.00 USD (Abonable)</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 2: SAVED APPOINTMENTS -->
+    <div id="listView" class="view-section">
+      <section class="card">
+        <div class="step-header">
+          <span class="step-num">&#128203;</span>
+          <h3>Control de Citas Guardadas</h3>
+        </div>
+        <p style="font-size: 0.82rem; color: var(--text-muted);">
+          Aqu&iacute; se guardan todas tus citas en este navegador. Si un cliente no llega, m&aacute;rcalo como <strong>No lleg&oacute;</strong> o env&iacute;ale un mensaje directo con un toque.
+        </p>
+
+        <div class="filter-bar">
+          <input type="search" id="searchInput" placeholder="&#128269; Buscar por nombre, celular o fecha..." />
+          <div class="filter-pills" id="statusFilterGroup">
+            <button type="button" class="filter-pill active" data-filter="all">Todas</button>
+            <button type="button" class="filter-pill" data-filter="pending">&#9203; Pendientes</button>
+            <button type="button" class="filter-pill" data-filter="missed">&#10060; No lleg&oacute;</button>
+            <button type="button" class="filter-pill" data-filter="done">&#9989; Asisti&oacute;</button>
+          </div>
+        </div>
+      </section>
+
+      <div id="appointmentsContainer" class="appt-list"></div>
+    </div>
+  </main>
+
+  <!-- Fixed Mobile-Friendly Bottom Bar -->
+  <div class="bottom-bar" id="bottomBar">
+    <div class="bottom-inner">
+      <button type="button" class="btn-clear" id="resetBtn" title="Limpiar formulario">&#128465;&#65039; Limpiar</button>
+      <button type="button" class="btn-whatsapp" id="sendWhatsappBtn">
+        <span>&#128242;</span>
+        <span>Guardar y Enviar al Cliente</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Studio WhatsApp Settings Modal -->
+  <div class="modal-backdrop" id="settingsModal">
+    <div class="modal-card">
+      <h3>&#9881;&#65039; Configuraci&oacute;n del Estudio</h3>
+      <p style="font-size: 0.82rem; color: var(--text-muted);">
+        Tu n&uacute;mero de WhatsApp como due&ntilde;o de <strong>Aeternum Tattoo</strong> (se incluye en el mensaje enviado al cliente como contacto del estudio).
+      </p>
+      <div class="field-group">
+        <label for="studioPhoneInput">N&uacute;mero de WhatsApp del Estudio (Due&ntilde;o)</label>
+        <input type="tel" id="studioPhoneInput" placeholder="593990911352" />
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-clear" id="closeSettings">Cancelar</button>
+        <button type="button" class="btn-save" id="saveSettings">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Unicode Emoji Helper
+    const E = {
+      skull: String.fromCodePoint(0x1F5A4),
+      sparkle: String.fromCodePoint(0x2728),
+      user: String.fromCodePoint(0x1F464),
+      phone: String.fromCodePoint(0x1F4F1),
+      muscle: String.fromCodePoint(0x1F4AA),
+      palette: String.fromCodePoint(0x1F3A8),
+      ruler: String.fromCodePoint(0x1F4CF),
+      dna: String.fromCodePoint(0x1F9EC),
+      cal: String.fromCodePoint(0x1F4C5),
+      clock: String.fromCodePoint(0x23F0),
+      sun: String.fromCodePoint(0x2600, 0xFE0F),
+      money: String.fromCodePoint(0x1F4B5),
+      chat: String.fromCodePoint(0x1F4AC),
+      pin: String.fromCodePoint(0x1F4CD),
+      warn: String.fromCodePoint(0x26A0, 0xFE0F),
+      n1: String.fromCodePoint(0x0031, 0xFE0F, 0x20E3),
+      n2: String.fromCodePoint(0x0032, 0xFE0F, 0x20E3),
+      n3: String.fromCodePoint(0x0033, 0xFE0F, 0x20E3),
+      n4: String.fromCodePoint(0x0034, 0xFE0F, 0x20E3)
+    };
+
+    // Web Audio API Sound Effects
+    let soundEnabled = true;
+    let audioCtx = null;
+
+    function playTone(type = 'tap') {
+      if (!soundEnabled) return;
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        if (type === 'tap') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(520, now);
+          osc.frequency.exponentialRampToValueAtTime(780, now + 0.055);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.07);
+        } else if (type === 'success') {
+          const notes = [523.25, 659.25, 783.99, 1046.5];
+          notes.forEach((freq, idx) => {
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.type = 'sine';
+            o.frequency.setValueAtTime(freq, now + idx * 0.06);
+            g.gain.setValueAtTime(0.09, now + idx * 0.06);
+            g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.25);
+            o.connect(g);
+            g.connect(audioCtx.destination);
+            o.start(now + idx * 0.06);
+            o.stop(now + idx * 0.06 + 0.26);
+          });
+        }
+      } catch (err) {}
+    }
+
+    // Storage Keys & State
+    const STORAGE_KEY = 'aeternum_appointments_v1';
+    const DEFAULT_PHONE = '593990911352';
+
+    const state = {
+      experience: 'Ya tengo tatuajes',
+      style: 'Blackwork / Sombras',
+      size: 'Pequeño (5 - 10 cm)',
+      zone: 'Brazo / Antebrazo',
+      shift: 'Mañana (10:00 - 13:00)',
+      filter: 'all'
+    };
+
+    // Elements
+    const clientName = document.getElementById('clientName');
+    const clientPhone = document.getElementById('clientPhone');
+    const dateInput = document.getElementById('dateInput');
+    const timeInput = document.getElementById('timeInput');
+    const ideaInput = document.getElementById('ideaInput');
+    const toastEl = document.getElementById('toast');
+    const savedBadge = document.getElementById('savedBadge');
+    const appointmentsContainer = document.getElementById('appointmentsContainer');
+    const searchInput = document.getElementById('searchInput');
+
+    function showToast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      setTimeout(() => toastEl.classList.remove('show'), 2800);
+    }
+
+    function getDefaultTomorrow() {
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function formatSpanishDate(isoStr) {
+      if (!isoStr) return 'Por definir';
+      const [y, m, d] = isoStr.split('-').map(Number);
+      const dateObj = new Date(y, m - 1, d);
+      const days = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+      const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+      return `${days[dateObj.getDay()]}, ${d} ${months[m - 1]} ${y}`;
+    }
+
+    function normalizeEcuadorPhone(raw) {
+      let digits = raw.replace(/\D/g, '');
+      if (digits.startsWith('593')) digits = digits.slice(3);
+      if (digits.startsWith('0')) digits = digits.slice(1);
+      return digits;
+    }
+
+    function updateSummary() {
+      document.getElementById('sumName').textContent = clientName.value.trim() || 'Sin especificar';
+      const digits = normalizeEcuadorPhone(clientPhone.value);
+      document.getElementById('sumPhone').textContent = digits ? `+593 ${digits}` : 'Sin especificar';
+      document.getElementById('sumExp').textContent = state.experience;
+      document.getElementById('sumStyle').textContent = state.style;
+      document.getElementById('sumSizeZone').textContent = `${state.size} • ${state.zone}`;
+      const fDate = formatSpanishDate(dateInput.value);
+      const fTime = timeInput.value ? `${timeInput.value} hrs` : '';
+      document.getElementById('sumDateTime').textContent = dateInput.value ? `${fDate} • ${fTime}` : 'Por definir';
+      document.getElementById('sumShift').textContent = state.shift;
+      document.getElementById('sumIdea').textContent = ideaInput.value.trim() || 'Por definir en consulta';
+    }
+
+    // Tabs Switching
+    const bottomBar = document.getElementById('bottomBar');
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        btn.classList.add('active');
+        const target = btn.dataset.tab;
+        document.getElementById(target).classList.add('active');
+        bottomBar.classList.toggle('hidden', target !== 'newView');
+        playTone('tap');
+        if (target === 'listView') renderAppointments();
+      });
+    });
+
+    function bindGroup(containerId, stateKey) {
+      const container = document.getElementById(containerId);
+      container.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          container.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          state[stateKey] = btn.dataset.value;
+          playTone('tap');
+          updateSummary();
+        });
+      });
+    }
+
+    bindGroup('expGroup', 'experience');
+    bindGroup('styleGroup', 'style');
+    bindGroup('sizeGroup', 'size');
+    bindGroup('zoneGroup', 'zone');
+    bindGroup('shiftGroup', 'shift');
+
+    [clientName, clientPhone, dateInput, timeInput, ideaInput].forEach(el => {
+      el.addEventListener('input', updateSummary);
+      el.addEventListener('change', updateSummary);
+    });
+
+    // Reset Form Cleanly
+    function resetForm(silent = false) {
+      clientName.value = '';
+      clientPhone.value = '';
+      ideaInput.value = '';
+      dateInput.value = getDefaultTomorrow();
+      timeInput.value = '11:30';
+
+      state.experience = 'Ya tengo tatuajes';
+      state.style = 'Blackwork / Sombras';
+      state.size = 'Pequeño (5 - 10 cm)';
+      state.zone = 'Brazo / Antebrazo';
+      state.shift = 'Mañana (10:00 - 13:00)';
+
+      document.querySelectorAll('#expGroup button').forEach((b, i) => b.classList.toggle('active', i === 0));
+      document.querySelectorAll('#styleGroup button').forEach((b, i) => b.classList.toggle('active', i === 0));
+      document.querySelectorAll('#sizeGroup button').forEach((b, i) => b.classList.toggle('active', i === 1));
+      document.querySelectorAll('#zoneGroup button').forEach((b, i) => b.classList.toggle('active', i === 0));
+      document.querySelectorAll('#shiftGroup button').forEach((b, i) => b.classList.toggle('active', i === 0));
+
+      updateSummary();
+      if (!silent) {
+        playTone('tap');
+        showToast('Formulario limpio y listo');
+      }
+    }
+
+    document.getElementById('resetBtn').addEventListener('click', () => resetForm(false));
+
+    // Sound Toggle
+    const soundToggle = document.getElementById('soundToggle');
+    soundToggle.addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      soundToggle.textContent = soundEnabled ? String.fromCodePoint(0x1F50A) : String.fromCodePoint(0x1F507);
+      if (soundEnabled) playTone('tap');
+      showToast(soundEnabled ? 'Sonidos activados' : 'Sonidos silenciados');
+    });
+
+    // Settings Modal
+    const settingsModal = document.getElementById('settingsModal');
+    const studioPhoneInput = document.getElementById('studioPhoneInput');
+
+    function getStudioPhone() {
+      return localStorage.getItem('aeternum_wa_phone') || DEFAULT_PHONE;
+    }
+
+    document.getElementById('openSettings').addEventListener('click', () => {
+      playTone('tap');
+      studioPhoneInput.value = getStudioPhone();
+      settingsModal.classList.add('open');
+    });
+
+    document.getElementById('closeSettings').addEventListener('click', () => {
+      settingsModal.classList.remove('open');
+    });
+
+    document.getElementById('saveSettings').addEventListener('click', () => {
+      const cleaned = studioPhoneInput.value.replace(/\D/g, '');
+      if (cleaned.length < 8) {
+        showToast('Ingresa un número válido');
+        return;
+      }
+      localStorage.setItem('aeternum_wa_phone', cleaned);
+      settingsModal.classList.remove('open');
+      playTone('success');
+      showToast('Número guardado correctamente');
+    });
+
+    // LocalStorage Appointments CRUD
+    function loadAppointments() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveAppointments(list) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      savedBadge.textContent = list.length;
+    }
+
+    function updateStatus(id, newStatus) {
+      const list = loadAppointments();
+      const idx = list.findIndex(item => item.id === id);
+      if (idx !== -1) {
+        list[idx].status = newStatus;
+        saveAppointments(list);
+        playTone('tap');
+        renderAppointments();
+        const labels = { done: 'Marcado como Asistió', missed: 'Marcado como No llegó', pending: 'Marcado como Pendiente' };
+        showToast(labels[newStatus] || 'Estado actualizado');
+      }
+    }
+
+    function deleteAppointment(id) {
+      if (!confirm('¿Eliminar esta cita del historial?')) return;
+      const list = loadAppointments().filter(item => item.id !== id);
+      saveAppointments(list);
+      playTone('tap');
+      renderAppointments();
+      showToast('Cita eliminada');
+    }
+
+    function sendClientFollowup(appt, isMissed) {
+      const fullPhone = `593${appt.phone}`;
+      const nl = String.fromCharCode(10);
+      let text = '';
+
+      if (isMissed) {
+        text = [
+          `Hola *${appt.name}*, te saludamos de *AETERNUM TATTOO* ${E.skull}`,
+          ``,
+          `${E.warn} Notamos que no pudiste asistir a tu cita agendada para el *${appt.formattedDate}* a las *${appt.time} hrs* (${appt.style}).`,
+          ``,
+          `Recuerda que el abono de *$5.00 USD* de agendamiento no es reembolsable en caso de inasistencia sin previo aviso, pero si deseas reagendar tu sesión escríbenos hoy mismo para ayudarte con un nuevo horario.`,
+          ``,
+          `${E.pin} _Aeternum Tattoo Studio_`
+        ].join(nl);
+      } else {
+        text = [
+          `Hola *${appt.name}*, te saludamos de *AETERNUM TATTOO* ${E.skull}${E.sparkle}`,
+          ``,
+          `Te recordamos tu cita de tatuaje:`,
+          `${E.cal} *Fecha:* ${appt.formattedDate}`,
+          `${E.clock} *Hora:* ${appt.time} hrs`,
+          `${E.palette} *Estilo:* ${appt.style} (${appt.zone})`,
+          `${E.money} *Agendamiento:* $5.00 USD`,
+          ``,
+          `Por favor confírmanos tu asistencia. ¡Te esperamos! ${E.pin}`
+        ].join(nl);
+      }
+
+      playTone('success');
+      const url = `https://api.whatsapp.com/send?phone=${fullPhone}&text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    function renderAppointments() {
+      const list = loadAppointments();
+      savedBadge.textContent = list.length;
+
+      const query = searchInput.value.trim().toLowerCase();
+      const filtered = list.filter(item => {
+        const matchesStatus = state.filter === 'all' || item.status === state.filter;
+        const matchesQuery = !query ||
+          item.name.toLowerCase().includes(query) ||
+          item.phone.includes(query) ||
+          item.formattedDate.toLowerCase().includes(query) ||
+          item.style.toLowerCase().includes(query);
+        return matchesStatus && matchesQuery;
+      });
+
+      if (filtered.length === 0) {
+        appointmentsContainer.innerHTML = `
+          <div class="empty-state">
+            <div style="font-size: 2rem; margin-bottom: 8px;">&#128203;</div>
+            <strong>No hay citas en esta vista</strong>
+            <p style="margin-top: 4px; font-size: 0.8rem;">Cuando agendes una cita desde "Nueva Cita", aparecerá aquí automáticamente.</p>
+          </div>
+        `;
+        return;
+      }
+
+      appointmentsContainer.innerHTML = '';
+      filtered.forEach(appt => {
+        const card = document.createElement('div');
+        card.className = `appt-card status-${appt.status}`;
+
+        const statusMap = {
+          pending: { cls: 'pending', label: '⏳ Pendiente' },
+          done: { cls: 'done', label: '✅ Asistió' },
+          missed: { cls: 'missed', label: '❌ No llegó' }
+        };
+        const st = statusMap[appt.status] || statusMap.pending;
+
+        card.innerHTML = `
+          <div class="appt-top">
+            <div>
+              <div class="appt-name">${appt.name}</div>
+              <div class="appt-phone">&#128241; +593 ${appt.phone}</div>
+            </div>
+            <span class="status-tag ${st.cls}">${st.label}</span>
+          </div>
+          <div class="appt-meta">
+            <div>&#128197; <strong>${appt.formattedDate}</strong> &bull; &#9200; <strong>${appt.time} hrs</strong></div>
+            <div>&#127912; ${appt.style} &bull; ${appt.size} (${appt.zone})</div>
+            <div>&#128172; <em>"${appt.idea}"</em></div>
+          </div>
+          <div class="appt-actions">
+            <button type="button" class="btn-mini attend" data-act="done">&#9989; Asisti&oacute;</button>
+            <button type="button" class="btn-mini missed" data-act="missed">&#10060; No lleg&oacute;</button>
+            ${
+              appt.status === 'missed'
+                ? `<button type="button" class="btn-mini wa-missed-msg" data-act="wa-missed">&#128242; Enviar aviso por Inasistencia</button>`
+                : `<button type="button" class="btn-mini wa-direct" data-act="wa-remind">&#128242; Enviar Recordatorio al Cliente</button>`
+            }
+          </div>
+          <div class="appt-footer-row">
+            <button type="button" class="btn-del-text" data-act="delete">&#128465;&#65039; Eliminar registro</button>
+          </div>
+        `;
+
+        card.querySelector('[data-act="done"]').addEventListener('click', () => updateStatus(appt.id, 'done'));
+        card.querySelector('[data-act="missed"]').addEventListener('click', () => updateStatus(appt.id, 'missed'));
+        card.querySelector('[data-act="delete"]').addEventListener('click', () => deleteAppointment(appt.id));
+
+        const waBtn = card.querySelector('[data-act="wa-missed"], [data-act="wa-remind"]');
+        if (waBtn) {
+          waBtn.addEventListener('click', () => sendClientFollowup(appt, appt.status === 'missed'));
+        }
+
+        appointmentsContainer.appendChild(card);
+      });
+    }
+
+    // Filter Pills & Search
+    document.querySelectorAll('#statusFilterGroup button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#statusFilterGroup button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.filter = btn.dataset.filter;
+        playTone('tap');
+        renderAppointments();
+      });
+    });
+
+    searchInput.addEventListener('input', renderAppointments);
+
+    // Build, Save & Send Directly to Client's WhatsApp
+    document.getElementById('sendWhatsappBtn').addEventListener('click', () => {
+      const name = clientName.value.trim();
+      if (!name) {
+        clientName.focus();
+        showToast('Por favor escribe el nombre del cliente');
+        return;
+      }
+
+      const phoneDigits = normalizeEcuadorPhone(clientPhone.value);
+      if (phoneDigits.length < 9) {
+        clientPhone.focus();
+        showToast('Ingresa los 9 dígitos del celular (+593)');
+        return;
+      }
+
+      if (!dateInput.value) {
+        dateInput.focus();
+        showToast('Selecciona una fecha deseada');
+        return;
+      }
+
+      const idea = ideaInput.value.trim() || 'Por definir en consulta';
+      const formattedDate = formatSpanishDate(dateInput.value);
+      const hourStr = timeInput.value || '11:30';
+      const nl = String.fromCharCode(10);
+
+      // Save to LocalStorage
+      const newAppt = {
+        id: Date.now().toString(),
+        name: name.toUpperCase(),
+        phone: phoneDigits,
+        experience: state.experience,
+        style: state.style,
+        size: state.size,
+        zone: state.zone,
+        date: dateInput.value,
+        formattedDate: formattedDate,
+        time: hourStr,
+        shift: state.shift,
+        idea: idea,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+      };
+
+      const existing = loadAppointments();
+      existing.unshift(newAppt);
+      saveAppointments(existing);
+
+      const studioPhone = getStudioPhone();
+      const targetClientPhone = `593${phoneDigits}`;
+
+      const message = [
+        `${E.skull} *COMPROBANTE DE CITA - AETERNUM TATTOO* ${E.sparkle}`,
+        ``,
+        `Hola *${newAppt.name}*, aquí tienes el detalle de tu cita agendada:`,
+        ``,
+        `${E.user} *Cliente:* ${newAppt.name}`,
+        `${E.phone} *Celular:* +593 ${phoneDigits}`,
+        `${E.muscle} *Experiencia:* ${state.experience}`,
+        `${E.palette} *Estilo:* ${state.style}`,
+        `${E.ruler} *Tamaño aprox.:* ${state.size}`,
+        `${E.dna} *Zona del cuerpo:* ${state.zone}`,
+        `${E.cal} *Fecha:* ${formattedDate}`,
+        `${E.clock} *Horario:* ${hourStr} hrs (${state.shift} ${E.sun})`,
+        `${E.money} *Costo de agendamiento:* $5.00 USD (abonable al valor final; no reembolsable por inasistencia)`,
+        ``,
+        `${E.chat} *Idea / Detalles:*`,
+        `"${idea}"`,
+        ``,
+        `--------------------------------`,
+        `*Opciones rápidas (responde con el número):*`,
+        `${E.n1} Confirmar asistencia a mi cita`,
+        `${E.n2} Solicitar cambio de horario`,
+        `${E.n3} Enviar imagen de referencia de mi tatuaje`,
+        `${E.n4} Consultar datos para el abono ($5)`,
+        ``,
+        `${E.pin} _Aeternum Tattoo Studio (Contacto: +${studioPhone})_`
+      ].join(nl);
+
+      const waUrl = `https://api.whatsapp.com/send?phone=${targetClientPhone}&text=${encodeURIComponent(message)}`;
+
+      playTone('success');
+      window.open(waUrl, '_blank', 'noopener,noreferrer');
+
+      setTimeout(() => {
+        resetForm(true);
+        showToast('¡Cita guardada y enviada al cliente!');
+      }, 250);
+    });
+
+    // Init
+    dateInput.value = getDefaultTomorrow();
+    updateSummary();
+    savedBadge.textContent = loadAppointments().length;
+  </script>
+</body>
+</html>
